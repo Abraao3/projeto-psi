@@ -13,7 +13,7 @@ def register():
     email = request.json.get("email")
     password = request.json.get("password")
 
-    user = User.query.filter_by(email="email").first()
+    user = User.query.filter_by(email=email).first()
     if user:
         return jsonify({"message": "Este email já está cadastrado"}), 400
 
