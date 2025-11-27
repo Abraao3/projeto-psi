@@ -25,7 +25,7 @@ def register():
     except:
         return jsonify({"message": "Erro ao cadastrar usuário"}), 400
 
-    return jsonify({"message": "Usuário cadastrado"}), 200
+    return jsonify({"message": "Usuário cadastrado"}), 201
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -41,8 +41,8 @@ def login():
     else:
         return jsonify({"message": "Erro ao fazer login"}), 400
 
-@auth_bp.route('/logout')
+@auth_bp.route('/logout', methods=['POST'])
 @login_required
 def logout():
-    print(logout_user())
+    logout_user()
     return jsonify({"message": "A sessão foi encerrada"}), 200
