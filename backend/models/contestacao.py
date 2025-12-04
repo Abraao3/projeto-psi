@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 
 class Contestacao(db.Model):
     __tablename__ = 'contestacoes'
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     motivo: Mapped[str] = mapped_column(Text, nullable=False)
-    
+
     # Relacionamento com reclamacao
     reclamacao_id: Mapped[int] = mapped_column(
         ForeignKey('reclamacoes.id'),
@@ -26,32 +26,34 @@ class Contestacao(db.Model):
         "Reclamacao",
         back_populates="contestacoes"
     )
-    
-    # Relacionamento com usuário que contestou a reclamacao 
-    usuario_id: Mapped[int] = mapped_column(ForeignKey('usuarios.id'), nullable=False)
-    usuario: Mapped["Usuario"] = relationship("Usuario", back_populates="contestacoes")
-    
+
+    # Relacionamento com usuário que contestou a reclamacao
+    usuario_id: Mapped[int] = mapped_column(
+        ForeignKey('usuarios.id'), nullable=False)
+    usuario: Mapped["Usuario"] = relationship(
+        "Usuario", back_populates="contestacoes")
+
     # Timestamp (data da contestação)
     data_contestacao: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
         nullable=False
     )
-    
+
     # Relacionamento com provas da pessoa que enviou a contestacao(fotos)
     provas: Mapped[list["ProvaContestacao"]] = relationship(
         "ProvaContestacao",
         back_populates="contestacao",
         cascade="all, delete-orphan"
     )
-    
+
     def to_dict(self):
         return {
             'id': self.id,
             'motivo': self.motivo,
             'reclamacaoId': self.reclamacao_id,
             'usuarioId': self.usuario_id,
-            'autor': self.usuario.username,
+            'autor': self.usuario.nome,
             'dataContestacao': self.data_contestacao.isoformat() if self.data_contestacao else None,
             'provas': [prova.to_dict() for prova in self.provas]
         }
