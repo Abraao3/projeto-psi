@@ -19,9 +19,9 @@ contestacoes_bp = Blueprint('contestacoes', __name__)
 def contestar_reclamacao(reclamacao_id):
     reclamacao: Reclamacao = Reclamacao.query.get_or_404(reclamacao_id)
     
-    if reclamacao.status != StatusReclamacao.RESOLVIDA:
+    if reclamacao.status == StatusReclamacao.PENDENTE:
         return jsonify({
-            'message': 'Só é possível contestar reclamações resolvidas'
+            'message': 'Não é possível contestar reclamações pendentes'
         }), 400
     
     dados = request.form
@@ -48,12 +48,12 @@ def contestar_reclamacao(reclamacao_id):
 
     arquivos = request.files
     imagens = arquivos.getlist("fotos")
-    path = criar_e_obter_diretorio_contestacao(reclamacao.id)
+    path = criar_e_obter_diretorio_contestacao(contestacao.id)
 
     try:
         for img in imagens:
             filename = salvar_imagem(path, img)
-            url = f"/api/uploads/reclamacoes/{reclamacao.id}/{filename}"
+            url = f"/api/uploads/contestacoes/{reclamacao.id}/{filename}"
             prova_contestacao = ProvaContestacao(url=url, nome_arquivo=filename, contestacao=contestacao)
             db.session.add(prova_contestacao)
         db.session.commit()
