@@ -40,7 +40,8 @@ def salvar_imagem(path: str, arquivo: FileStorage) -> str:
         filename = secure_filename(arquivo.filename)
         filepath = os.path.join(path, filename)
         if not filename or os.path.exists(filepath):
-            filename = f"{token_hex(16)}" # FALTA A EXTENSÃO
+            extensao = arquivo.content_type.split("/")[1]
+            filename = f"{token_hex(16)}.{extensao}" # FALTA A EXTENSÃO
             filepath = os.path.join(path, filename)
 
         arquivo.save(filepath)
