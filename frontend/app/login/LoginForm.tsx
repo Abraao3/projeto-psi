@@ -2,17 +2,37 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import loginAction from "./actions";
 import "./form.css";
+import Swal from "sweetalert2";
+
 
 export default function LoginForm() {
-  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
+  async function requisitarLogin(data: {
+    email: string;
+    password: string;
+  }) {
+      const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+      const url = `${apiUrl}/api/login`;
+      const options = {
+          method: "POST",
+          credentials: "include" as RequestCredentials,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+      };
+
+      const response = await fetch(url, options);
+      const result = await response.json();
+
+      return result.message;
+      
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
     setIsSubmitting(true);
 
     const form = e.currentTarget;
@@ -22,13 +42,17 @@ export default function LoginForm() {
       password: String(formData.get("senha")),
     };
 
-    const result = await loginAction(data);
+    const result = await requisitarLogin(data);
     if (result) {
-      setError(result);
+      Swal.fire({
+        title:"Login",
+        text: result,
+        icon: getItemByStatus
+      })
     }
     setIsSubmitting(false);
 
-    router.push("/");
+    // router.push("/");
   }
 
   return (
@@ -56,14 +80,6 @@ export default function LoginForm() {
             // se a variavel for true, retorna Entrando..., se for false, retorna iniciar sessão
           }
         </button>
-        {
-          error && <p>{error}</p>
-          // SHORT-CIRCUIT
-          // retorna <p>{error}</p>, CASO error não seja um Falsy Value
-          // Falsy Value: "", 0, false, null, undefined, NaN
-
-          // se erro existe, renderiza o <p>, se não existe, nada é renderizado
-        }
       </form>
     </main>
   );
